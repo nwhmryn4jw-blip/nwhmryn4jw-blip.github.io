@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Yandex.Bike Check</title>
+    <style>
+        :root {
+            --yandex-yellow: #ffcc00;
+            --success-green: #00c136;
+            --error-red: #f33333;
+            --bg-gray: #f2f2f7;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background-color: var(--bg-gray); 
+            margin: 0; 
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .app-container { 
+            width: 100%;
+            max-width: 450px;
+            margin-top: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo { 
+            font-size: 32px; 
+            font-weight: 800; 
+            letter-spacing: -1.5px;
+            color: #000;
+        }
+
+        .logo span { 
+            background: var(--yandex-yellow); 
+            padding: 2px 8px; 
+            border-radius: 8px;
+            margin-left: 4px;
+        }
+
+        .subtitle {
+            color: #8e8e93;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .search-card {
+            background: #fff;
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        input { 
+            width: 100%; 
+            padding: 20px; 
+            font-size: 24px; 
+            border: 2px solid #e5e5ea; 
+            border-radius: 18px; 
+            box-sizing: border-box; 
+            outline: none; 
+            text-align: center;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            appearance: none;
+        }
+
+        input:focus { 
+            border-color: var(--yandex-yellow);
+            background-color: #fffdf2;
+        }
+
+        .btn-check { 
+            width: 100%; 
+            padding: 20px; 
+            background: var(--yandex-yellow); 
+            border: none; 
+            border-radius: 18px; 
+            font-size: 18px; 
+            font-weight: 700; 
+            margin-top: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 204, 0, 0.3);
+        }
+
+        .btn-check:active { 
+            transform: scale(0.96); 
+            opacity: 0.9;
+        }
+
+        #result { 
+            margin-top: 20px;
+            display: none;
+            border-radius: 24px;
+            overflow: hidden;
+            animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-box {
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .pt-status { background: var(--success-green); color: white; }
+        .ft-status { background: var(--error-red); color: white; }
+
+        .status-label { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
+        .status-main { font-size: 28px; font-weight: 900; margin: 8px 0; }
+        
+        .city-pill {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 40px;
+            color: #aeaeb2;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">
+        <div class="logo">Yandex<span>Bike</span></div>
+        <div class="subtitle">База данных: Москва и Санкт-Петербург</div>
+    </div>
+
+    <div class="search-card">
+        <input type="text" id="bikeID" placeholder="YA000X" autocomplete="off" spellcheck="false">
+        <button class="btn-check" onclick="checkBike()">Проверить байк</button>
+    </div>
+
+    <div id="result"></div>
+
+    <div class="footer-note">
+        @Yabike_alex
+    </div>
+</div>
+
+<script>
+    const moscowPT = ["YA001A", "YA015C", "YA028X", "YA036P", "YA049C", "YA063P", "YA073B", "YA078C", "YA081B", "YA088P", "YA102P", "YA118C", "YA118X", "YA126C", "YA135C", "YA135T", "YA144T", "YA146C", "YA152T", "YA153T", "YA182T", "YA184C", "YA184T", "YA192T", "YA195T", "YA203A", "YA208P", "YA213P", "YA244C", "YA265C", "YA290C", "YA329O", "YA336T", "YA358T", "YA364C", "YA380X", "YA382T", "YA391C", "YA406T", "YA429T", "YA433C", "YA436P", "YA437P", "YA450O", "YA453C", "YA498O", "YA499O", "YA501A", "YA508O", "YA513C", "YA514C", "YA530B", "YA536C", "YA539C", "YA546T", "YA564O", "YA576X", "YA587C", "YA591B", "YA631T", "YA664T", "YA690O", "YA696O", "YA698C", "YA713T", "YA751C", "YA768O", "YA793C", "YA796P", "YA822C", "YA832O", "YA836P", "YA837T", "YA851T", "YA852C", "YA855T", "YA856C", "YA876T", "YA881B"];
+    const spbPT = ["YA220M", "YA221P", "YA249M", "YA486C", "YA632T", "YA654C", "YA733P", "YA904O", "YA944M", "YA959O", "YX005H", "YX182C", "YX243C", "YX458C", "YX460C", "YX461C", "YX474B", "YX496B", "YX497B", "YX507B", "YX511B", "YX518B", "YX519B", "YX520B", "YX522B", "YX523B", "YX542B", "YX544B", "YX552B", "YX605B", "YX606B", "YX615B", "YX630B", "YX648B", "YX649B", "YX654B", "YX655B", "YX661B", "YX668B", "YX670B", "YX673B", "YX685B", "YX686B", "YX691B", "YX697B", "YX699B", "YX700B", "YX857C", "YX990C", "YX999C"];
+
+    function checkBike() {
+        const input = document.getElementById('bikeID').value.trim().toUpperCase();
+        const res = document.getElementById('result');
+        
+        if (!input) return;
+
+        res.style.display = "block";
+        const inMsk = moscowPT.includes(input);
+        const inSpb = spbPT.includes(input);
+
+        if (inMsk || inSpb) {
+            const city = inMsk ? "МОСКВА" : "САНКТ-ПЕТЕРБУРГ";
+            res.innerHTML = `
+                <div class="status-box pt-status">
+                    <div class="status-label">Статус аренды</div>
+                    <div class="status-main">ПАРТ-ТАЙМ</div>
+                    <div class="city-pill">📍 ${city}</div>
+                </div>
+            `;
+        } else {
+            res.innerHTML = `
+                <div class="status-box ft-status">
+                    <div class="status-label">Статус аренды</div>
+                    <div class="status-main">ФУЛЛ-ТАЙМ</div>
+                    <div style="margin-top:10px; font-size:14px; opacity:0.8;">Байк только для полной аренды</div>
+                </div>
+            `;
+        }
+        
+        // Вибрация на мобильных при успехе (если поддерживается)
+        if (window.navigator.vibrate) window.navigator.vibrate(50);
+    }
+
+    // Слушатель Enter и авто-верхний регистр
+    document.getElementById('bikeID').addEventListener('keypress', (e) => { 
+        if (e.key === 'Enter') {
+            checkBike();
+            document.activeElement.blur(); // Скрыть клавиатуру
+        }
+    });
+</script>
+
+</body>
+</html>
