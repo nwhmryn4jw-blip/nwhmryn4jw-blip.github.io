@@ -21,7 +21,8 @@
         .status-box { padding: 30px 20px; text-align: center; color: white; }
         .pt { background: var(--s-green); }
         .ft { background: var(--e-red); }
-        .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; margin-bottom: 8px; }
+        .bike-num { font-size: 16px; font-weight: 700; background: rgba(0,0,0,0.15); display: inline-block; padding: 4px 12px; border-radius: 8px; margin-bottom: 15px; text-transform: uppercase; }
+        .label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 5px; }
         .main-status { font-size: 28px; font-weight: 900; }
         .pill { display: inline-flex; background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 100px; font-size: 14px; font-weight: 700; margin-top: 12px; }
     </style>
@@ -31,7 +32,7 @@
 <div class="app">
     <div class="header">
         <div class="logo">Yandex<span>Bike</span></div>
-        <div style="color: #8e8e93; font-size: 14px; margin-top: 8px;">База: МСК (142) и СПБ (50)</div>
+        <div style="color: #8e8e93; font-size: 13px; margin-top: 8px;">База обновлена: МСК и СПБ</div>
     </div>
     <div class="card">
         <input type="text" id="b" placeholder="YA000X" autocomplete="off" spellcheck="false">
@@ -41,10 +42,10 @@
 </div>
 
 <script>
-    // МОСКВА (База из файла + новые 26 номеров)
+    // МОСКВА (Файлы + ваши дополнения)
     const m = ["YA001A","YA015C","YA028X","YA036P","YA049C","YA063P","YA073B","YA078C","YA081B","YA088P","YA102P","YA118C","YA118X","YA126C","YA135C","YA135T","YA144T","YA146C","YA152T","YA153T","YA182T","YA184C","YA184T","YA192T","YA195T","YA203A","YA208P","YA213P","YA244C","YA265C","YA290C","YA329O","YA336T","YA358T","YA364C","YA380X","YA382T","YA391C","YA406T","YA429T","YA433C","YA436P","YA437P","YA450O","YA453C","YA498O","YA499O","YA501A","YA508O","YA513C","YA514C","YA530B","YA536C","YA539C","YA546T","YA564O","YA576X","YA587C","YA591B","YA631T","YA664T","YA690O","YA696O","YA698C","YA713T","YA751C","YA768O","YA793C","YA796P","YA822C","YA832O","YA836P","YA837T","YA851T","YA852C","YA855T","YA856C","YA876T","YA881B","YA882C","YA883C","YA884C","YA885C","YA887B","YA888C","YA889C","YA890C","YA891C","YA892B","YA893C","YA894B","YA895C","YA896C","YA897C","YA898C","YA899C","YA900C","YA901C","YA902C","YA905C","YA906B","YA907C","YA908C","YA909C","YA910C","YA911C","YA912C","YA913C","YA914C","YA915C","YA916C","YA917C","YA918C","YA919C","YA920C","YA884O","YA899T","YA900T","YA924C","YA928O","YA945C","YA952C","YA960O","YA963P","YA973C","YA979T","YA981P","YA999C","YX021A","YX287A","YX288A","YX289A","YX347A","YX351A","YX398A","YX408A","YX415A","YX421A","YX422A","YX423A","YX759A"];
     
-    // САНКТ-ПЕТЕРБУРГ (Полный список из файла)
+    // СПБ
     const s = ["YA220M","YA221P","YA249M","YA486C","YA632T","YA654C","YA733P","YA904O","YA944M","YA959O","YX005H","YX182C","YX243C","YX458C","YX460C","YX461C","YX474B","YX496B","YX497B","YX507B","YX511B","YX518B","YX519B","YX520B","YX522B","YX523B","YX542B","YX544B","YX552B","YX605B","YX606B","YX615B","YX630B","YX648B","YX649B","YX654B","YX655B","YX661B","YX668B","YX670B","YX673B","YX685B","YX686B","YX691B","YX697B","YX699B","YX700B","YX857C","YX990C","YX999C"];
 
     function c() {
@@ -54,10 +55,11 @@
         r.style.display = "block";
         const iM = m.includes(v);
         const iS = s.includes(v);
+        
         if (iM || iS) {
-            r.innerHTML = `<div class="status-box pt"><div class="label">Аренда</div><div class="main-status">ПАРТ-ТАЙМ ✅</div><div class="pill">📍 ${iM ? 'МОСКВА' : 'СПБ'}</div></div>`;
+            r.innerHTML = `<div class="status-box pt"><div class="bike-num">№ ${v}</div><div class="label">Тип аренды</div><div class="main-status">ПАРТ-ТАЙМ ✅</div><div class="pill">📍 ${iM ? 'МОСКВА' : 'СПБ'}</div></div>`;
         } else {
-            r.innerHTML = `<div class="status-box ft"><div class="label">Аренда</div><div class="main-status">ФУЛЛ-ТАЙМ 🛑</div><div style="margin-top:10px; font-size:14px; opacity:0.8;">Номер не найден в списках</div></div>`;
+            r.innerHTML = `<div class="status-box ft"><div class="bike-num">№ ${v}</div><div class="label">Тип аренды</div><div class="main-status">ФУЛЛ-ТАЙМ 🛑</div><div style="margin-top:10px; font-size:14px; opacity:0.8;">Не найден в базе</div></div>`;
         }
         document.activeElement.blur();
     }
