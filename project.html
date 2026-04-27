@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Yandex.Bike Status</title>
+  <style>
+    :root {
+      --y-yellow: #ffcc00;
+      --s-green: #00c136;
+      --e-red: #f33333;
+      --bg: #f2f2f7;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 15px;
+      display: flex;
+      justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 450px;
+    }
+
+    .header {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .logo {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+    }
+
+    .logo span {
+      background: var(--y-yellow);
+      padding: 2px 8px;
+      border-radius: 8px;
+      margin-left: 4px;
+    }
+
+    .card {
+      background: #fff;
+      padding: 24px;
+      border-radius: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .mode-switch {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 16px;
+      background: #f0f0f5;
+      border: none;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.2s;
+      color: #555;
+    }
+
+    .mode-btn.active {
+      background: var(--y-yellow);
+      color: #000;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .mode-btn:active {
+      transform: scale(0.96);
+    }
+
+    .input-area {
+      position: relative;
+    }
+
+    .single-input,
+    .multi-input {
+      width: 100%;
+      padding: 18px;
+      font-size: 24px;
+      border: 2px solid #e5e5ea;
+      border-radius: 18px;
+      box-sizing: border-box;
+      text-align: center;
+      font-weight: 700;
+      text-transform: uppercase;
+      outline: none;
+      appearance: none;
+      font-family: inherit;
+      display: none;
+    }
+
+    .single-input {
+      display: block;
+    }
+
+    .multi-input {
+      padding: 16px;
+      font-size: 16px;
+      text-align: left;
+      resize: vertical;
+      min-height: 120px;
+      line-height: 1.5;
+      font-weight: 600;
+    }
+
+    .input-area input:focus,
+    .input-area textarea:focus {
+      border-color: var(--y-yellow);
+      background: #fffdf2;
+    }
+
+    button.main-btn {
+      width: 100%;
+      padding: 18px;
+      background: var(--y-yellow);
+      border: none;
+      border-radius: 18px;
+      font-size: 18px;
+      font-weight: 700;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+
+    button.main-btn:active {
+      transform: scale(0.96);
+    }
+
+    #res {
+      margin-top: 20px;
+      display: none;
+    }
+
+    .results-container {
+      border-radius: 24px;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .summary {
+      padding: 16px 20px;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .two-cols {
+      display: flex;
+      gap: 12px;
+    }
+
+    .pt-col,
+    .ft-col {
+      flex: 1;
+      background: #fff;
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    }
+
+    .pt-col {
+      border-left: 4px solid var(--s-green);
+    }
+
+    .ft-col {
+      border-left: 4px solid var(--e-red);
+    }
+
+    .col-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .pt-col .col-title {
+      color: #009e2b;
+    }
+
+    .ft-col .col-title {
+      color: #d32f2f;
+    }
+
+    .bike-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .bike-row .city {
+      font-size: 10px;
+      background: #f0f0f5;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-weight: 500;
+      color: #555;
+    }
+
+    .empty-col {
+      font-size: 13px;
+      color: #999;
+      font-weight: 400;
+    }
+
+    .clear-btn {
+      background: transparent;
+      border: 1px solid #ccc;
+      color: #555;
+      font-size: 14px;
+      padding: 10px;
+      border-radius: 14px;
+      margin-top: 15px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .clear-btn:active {
+      background: #f0f0f0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+    <div class="header">
+      <div class="logo">Yandex<span>Bike</span></div>
+      <div style="color: #8e8e93; font-size: 13px; margin-top: 8px;">Проверка статуса · МСК и СПБ</div>
+    </div>
+    <div class="card">
+      <div class="mode-switch">
+        <button class="mode-btn active" onclick="setMode('single')">🔍 Один байк</button>
+        <button class="mode-btn" onclick="setMode('multi')">📋 Список</button>
+      </div>
+      <div class="input-area">
+        <input type="text" id="singleInput" class="single-input" placeholder="YA000X" autocomplete="off" spellcheck="false">
+        <textarea id="multiInput" class="multi-input" rows="5" placeholder="Введите номера через пробел, запятую или с новой строки" autocomplete="off" spellcheck="false" style="display: none;"></textarea>
+      </div>
+      <button class="main-btn" onclick="check()">ПРОВЕРИТЬ</button>
+    </div>
+    <div id="res"></div>
+  </div>
+
+  <script>
+    // База номеров
+    const moscow = ["YA001A","YA015C","YA028X","YA036P","YA049C","YA063P","YA073B","YA078C","YA081B","YA088P","YA102P","YA118C","YA118X","YA126C","YA135C","YA135T","YA144T","YA146C","YA152T","YA153T","YA182T","YA184C","YA184T","YA192T","YA195T","YA203A","YA208P","YA213P","YA244C","YA265C","YA290C","YA329O","YA336T","YA358T","YA364C","YA380X","YA382T","YA391C","YA406T","YA429T","YA433C","YA436P","YA437P","YA450O","YA453C","YA498O","YA499O","YA501A","YA508O","YA513C","YA514C","YA530B","YA536C","YA539C","YA546T","YA564O","YA576X","YA587C","YA591B","YA631T","YA664T","YA690O","YA696O","YA698C","YA713T","YA751C","YA768O","YA793C","YA796P","YA822C","YA832O","YA836P","YA837T","YA851T","YA852C","YA855T","YA856C","YA876T","YA881B","YA882C","YA883C","YA884C","YA885C","YA887B","YA888C","YA889C","YA890C","YA891C","YA892B","YA893C","YA894B","YA895C","YA896C","YA897C","YA898C","YA899C","YA900C","YA901C","YA902C","YA905C","YA906B","YA907C","YA908C","YA909C","YA910C","YA911C","YA912C","YA913C","YA914C","YA915C","YA916C","YA917C","YA918C","YA919C","YA920C","YA884O","YA899T","YA900T","YA924C","YA928O","YA945C","YA952C","YA960O","YA963P","YA973C","YA979T","YA981P","YA999C","YX021A","YX287A","YX288A","YX289A","YX347A","YX351A","YX398A","YX408A","YX415A","YX421A","YX422A","YX423A","YX759A"];
+    const spb = ["YA220M","YA221P","YA249M","YA486C","YA632T","YA654C","YA733P","YA904O","YA944M","YA959O","YX005H","YX182C","YX243C","YX458C","YX460C","YX461C","YX474B","YX496B","YX497B","YX507B","YX511B","YX518B","YX519B","YX520B","YX522B","YX523B","YX542B","YX544B","YX552B","YX605B","YX606B","YX615B","YX630B","YX648B","YX649B","YX654B","YX655B","YX661B","YX668B","YX670B","YX673B","YX685B","YX686B","YX691B","YX697B","YX699B","YX700B","YX857C","YX990C","YX999C"];
+
+    let currentMode = 'single';
+
+    function setMode(mode) {
+        currentMode = mode;
+        const singleInput = document.getElementById('singleInput');
+        const multiInput = document.getElementById('multiInput');
+        const singleBtn = document.querySelector('.mode-btn:first-child');
+        const multiBtn = document.querySelector('.mode-btn:last-child');
+        
+        if (mode === 'single') {
+            singleInput.style.display = 'block';
+            multiInput.style.display = 'none';
+            singleBtn.classList.add('active');
+            multiBtn.classList.remove('active');
+            const multiVal = multiInput.value.trim().toUpperCase();
+            if (multiVal && !multiVal.includes(' ') && !multiVal.includes(',') && !multiVal.includes('\n')) {
+                singleInput.value = multiVal;
+            }
+        } else {
+            singleInput.style.display = 'none';
+            multiInput.style.display = 'block';
+            singleBtn.classList.remove('active');
+            multiBtn.classList.add('active');
+            const singleVal = singleInput.value.trim().toUpperCase();
+            if (singleVal) {
+                multiInput.value = singleVal;
+            }
+        }
+        clearResults();
+    }
+
+    function check() {
+        let inputText = '';
+        if (currentMode === 'single') {
+            inputText = document.getElementById('singleInput').value.trim();
+        } else {
+            inputText = document.getElementById('multiInput').value.trim();
+        }
+        
+        const res = document.getElementById('res');
+        if (!inputText) {
+            res.style.display = 'none';
+            return;
+        }
+
+        const tokens = inputText.split(/[\s,;]+/).filter(t => t.length > 0);
+        const numbers = tokens.map(t => t.toUpperCase());
+        
+        // Собираем результаты
+        const ptList = []; // { num, city }
+        const ftList = []; // { num }
+        numbers.forEach(num => {
+            const inMoscow = moscow.includes(num);
+            const inSpb = spb.includes(num);
+            if (inMoscow || inSpb) {
+                ptList.push({ num, city: inMoscow ? 'М' : 'С' });
+            } else {
+                ftList.push({ num });
+            }
+        });
+
+        let html = '';
+        if (currentMode === 'single') {
+            // Одиночный режим – подробная карточка
+            const num = numbers[0];
+            const inM = moscow.includes(num);
+            const inS = spb.includes(num);
+            if (inM || inS) {
+                const city = inM ? 'МОСКВА' : 'СПБ';
+                html = `<div class="results-container">
+                    <div class="summary" style="justify-content:center;">✅ Парт-тайм</div>
+                    <div style="background:#fff; border-radius:18px; padding:16px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,0.04);">
+                        <div style="font-weight:800; font-size:20px;">${num}</div>
+                        <div style="font-size:12px; background:#f0f0f5; display:inline-block; padding:4px 10px; border-radius:100px; margin-top:8px;">📍 ${city}</div>
+                    </div>
+                    <button class="clear-btn" onclick="clearResults()">Очистить</button>
+                </div>`;
+            } else {
+                html = `<div class="results-container">
+                    <div class="summary" style="justify-content:center;">🛑 Фулл-тайм</div>
+                    <div style="background:#fff; border-radius:18px; padding:16px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,0.04);">
+                        <div style="font-weight:800; font-size:20px;">${num}</div>
+                        <div style="font-size:12px; color:#999; margin-top:8px;">Нет в базе</div>
+                    </div>
+                    <button class="clear-btn" onclick="clearResults()">Очистить</button>
+                </div>`;
+            }
+        } else {
+            // Мульти-режим – две колонки
+            const ptHtml = ptList.map(item => 
+                `<div class="bike-row"><span>${item.num}</span><span class="city">${item.city}</span></div>`
+            ).join('') || '<div class="empty-col">Нет</div>';
+            
+            const ftHtml = ftList.map(item => 
+                `<div class="bike-row"><span>${item.num}</span></div>`
+            ).join('') || '<div class="empty-col">Нет</div>';
+
+            html = `<div class="results-container">
+                <div class="summary">
+                    <span>✅ Парт-тайм: ${ptList.length}</span>
+                    <span>🛑 Фулл-тайм: ${ftList.length}</span>
+                </div>
+                <div class="two-cols">
+                    <div class="pt-col">
+                        <div class="col-title">Парт-тайм</div>
+                        ${ptHtml}
+                    </div>
+                    <div class="ft-col">
+                        <div class="col-title">Фулл-тайм</div>
+                        ${ftHtml}
+                    </div>
+                </div>
+                <button class="clear-btn" onclick="clearResults()">Очистить</button>
+            </div>`;
+        }
+        
+        res.innerHTML = html;
+        res.style.display = 'block';
+        document.activeElement.blur();
+    }
+
+    function clearResults() {
+        document.getElementById('singleInput').value = '';
+        document.getElementById('multiInput').value = '';
+        document.getElementById('res').style.display = 'none';
+        if (currentMode === 'single') {
+            document.getElementById('singleInput').focus();
+        } else {
+            document.getElementById('multiInput').focus();
+        }
+    }
+
+    document.getElementById('singleInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            check();
+        }
+    });
+    document.getElementById('multiInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.ctrlKey) {
+            e.preventDefault();
+            check();
+        }
+    });
+  </script>
+</body>
+
+</html>
